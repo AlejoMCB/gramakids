@@ -5,18 +5,16 @@
 [build.environment]
   NODE_VERSION = "18"
   CI = "false"
+  SECRETS_SCAN_ENABLED = "false"
 
-# Funciones serverless
 [functions]
   directory = "netlify/functions"
 
-# Redirecciones SPA
 [[redirects]]
   from = "/*"
   to = "/index.html"
   status = 200
 
-# Headers de seguridad
 [[headers]]
   for = "/*"
   [headers.values]
