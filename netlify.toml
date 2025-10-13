@@ -21,3 +21,5 @@
     X-Frame-Options = "DENY"
     X-Content-Type-Options = "nosniff"
     Referrer-Policy = "strict-origin-when-cross-origin"
+[[plugins]]
+  package = "@netlify/plugin-functions-install-core"
