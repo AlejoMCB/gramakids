@@ -1,8 +1,24 @@
-[build]
-command = "cross-env CI=false npm run build"
-publish = "build/"
+﻿[build]
+  command = "npm run build"
+  publish = "dist"
 
 [build.environment]
-# --- CORRECCIÓN ---
-# Las claves deben ir en una sola cadena de texto, separadas por comas.
-SECRETS_SCAN_OMIT_KEYS = "REACT_APP_FIREBASE_API_KEY,REACT_APP_FIREBASE_AUTH_DOMAIN,REACT_APP_FIREBASE_PROJECT_ID,REACT_APP_FIREBASE_STORAGE_BUCKET,REACT_APP_FIREBASE_MESSAGING_SENDER_ID,REACT_APP_FIREBASE_APP_ID,REACT_APP_STRIPE_PUBLISHABLE_KEY,REACT_APP_MERCADOPAGO_PUBLIC_KEY"
+  NODE_VERSION = "18"
+
+# Funciones serverless
+[functions]
+  directory = "netlify/functions"
+
+# Redirecciones SPA
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
+
+# Headers de seguridad
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Frame-Options = "DENY"
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "strict-origin-when-cross-origin"
