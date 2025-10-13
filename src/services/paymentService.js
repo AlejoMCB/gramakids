@@ -68,10 +68,6 @@ const createMercadoPagoPreference = async () => {
   }
 };
 
-export const paymentService = {
-  createCheckoutSession,
-  createMercadoPagoPreference,
-};
 const createLemonSqueezyCheckout = async () => {
   try {
     const response = await fetch('/.netlify/functions/create-lemon-squeezy-checkout', {
