@@ -2,6 +2,7 @@
   "name": "gramakids-functions",
   "version": "1.0.0",
   "dependencies": {
-    "stripe": "^13.10.0"
+    "stripe": "^13.10.0",
+    "mercadopago": "^1.5.14"
   }
 }
