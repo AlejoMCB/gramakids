@@ -1,9 +1,6 @@
 // src/services/paymentService.js
-
-// Importamos la librería de Stripe para el front-end
 import { loadStripe } from '@stripe/stripe-js';
 
-// Tu clave PUBLICABLE de Stripe (esta no es secreta)
 const stripePromise = loadStripe(process.env.REACT_APP_STRIPE_PUBLISHABLE_KEY);
 
 const createCheckoutSession = async () => {
@@ -15,7 +12,7 @@ const createCheckoutSession = async () => {
       },
       body: JSON.stringify({
         name: 'GramaKids Premium',
-        price: 999, // $9.99 en centavos
+        price: 999,
       }),
     });
 
@@ -24,8 +21,6 @@ const createCheckoutSession = async () => {
     }
 
     const session = await response.json();
-
-    // Redirigir al checkout de Stripe
     const stripe = await stripePromise;
     const { error } = await stripe.redirectToCheckout({
       sessionId: session.id,
@@ -38,11 +33,42 @@ const createCheckoutSession = async () => {
 
     return { success: true };
   } catch (error) {
-    console.error("Error al crear la sesión de checkout:", error);
+    console.error("Error al crear la sesion de checkout:", error);
+    return { success: false, error: error.message };
+  }
+};
+
+// NUEVA FUNCIÓN PARA MERCADOPAGO
+const createMercadoPagoPreference = async () => {
+  try {
+    const response = await fetch('/.netlify/functions/create-mercadopago-preference', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        name: 'GramaKids Premium',
+        price: 999,
+      }),
+    });
+
+    if (!response.ok) {
+      throw new Error('Error al crear preferencia de MercadoPago');
+    }
+
+    const data = await response.json();
+    
+    // Redirigir a MercadoPago
+    window.location.href = data.init_point;
+    
+    return { success: true };
+  } catch (error) {
+    console.error("Error con MercadoPago:", error);
     return { success: false, error: error.message };
   }
 };
 
 export const paymentService = {
   createCheckoutSession,
+  createMercadoPagoPreference,
 };
