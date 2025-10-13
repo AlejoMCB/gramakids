@@ -16,7 +16,7 @@ const handlePayment = async (method) => {
 
   try {
     let result;
-    if (method === 'stripe') {
+    if (method === 'lemonsqueezy') {
       result = await paymentService.createLemonSqueezyCheckout();
     } else if (method === 'mercadopago') {
       result = await paymentService.createMercadoPagoPreference();
@@ -62,25 +62,26 @@ const handlePayment = async (method) => {
         </div>
       )}
 
-      {/* BOTÓN DE STRIPE */}
-      <button
-        onClick={() => handlePayment('stripe')}
-        disabled={loading}
-        style={{
-          fontSize: '1.2em',
-          padding: '15px 30px',
-          marginBottom: '10px',
-          width: '100%',
-          maxWidth: '300px',
-          background: '#6772e5',
-          color: 'white',
-          border: 'none',
-          borderRadius: '8px',
-          cursor: loading ? 'not-allowed' : 'pointer'
-        }}
-      >
-        {loading ? '⏳ Procesando...' : '💳 Pagar con Stripe'}
-      </button>
+{/* BOTÓN DE LEMON SQUEEZY (Tarjetas internacionales) */}
+<button
+  onClick={() => handlePayment('lemonsqueezy')}
+  disabled={loading}
+  style={{
+    fontSize: '1.2em',
+    padding: '15px 30px',
+    marginBottom: '10px',
+    width: '100%',
+    maxWidth: '300px',
+    background: '#FFC233',
+    color: '#000',
+    border: 'none',
+    borderRadius: '8px',
+    cursor: loading ? 'not-allowed' : 'pointer',
+    fontWeight: 'bold'
+  }}
+>
+  {loading ? '⏳ Procesando...' : '🍋 Pagar con Tarjeta (Internacional)'}
+</button>
 
       {/* BOTÓN DE MERCADOPAGO */}
       <button
