@@ -1,54 +1,46 @@
-// --- CÓDIGO DE DIAGNÓSTICO ---
-// Primero, intentamos leer la clave y lo registramos en la consola
-const secretKey = process.env.STRIPE_SECRET_KEY;
-console.log("--- INICIANDO FUNCIÓN ---");
-console.log("Variable STRIPE_SECRET_KEY leída:", secretKey ? `Una clave de ${secretKey.length} caracteres que empieza con '${secretKey.substring(0, 7)}...'` : "NO ENCONTRADA o vacía.");
-
-// Solo intentamos inicializar Stripe si la clave parece existir
-if (!secretKey) {
-  const errorResponse = {
-    statusCode: 500,
-    body: JSON.stringify({ error: "La variable de entorno STRIPE_SECRET_KEY no fue encontrada en la función." })
-  };
-  console.error("Error: STRIPE_SECRET_KEY es undefined.");
-  return errorResponse;
-}
-
-// Ahora, el código original
-const stripe = require('stripe')(secretKey);
+const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
 
 exports.handler = async (event) => {
-  console.log("Handler de la función invocado.");
+  console.log("Funcion invocada");
+  
+  // Validar que existe la clave
+  if (!process.env.STRIPE_SECRET_KEY) {
+    console.error("STRIPE_SECRET_KEY no configurada");
+    return {
+      statusCode: 500,
+      body: JSON.stringify({ error: 'Configuracion de Stripe faltante' })
+    };
+  }
+
   try {
     const { price, name } = JSON.parse(event.body);
-
+    
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ['card'],
-      line_items: [
-        {
-          price_data: { 
-            currency: 'usd', 
-            product_data: { name: name }, 
-            unit_amount: price, 
-          },
-          quantity: 1,
+      line_items: [{
+        price_data: {
+          currency: 'usd',
+          product_data: { name: name },
+          unit_amount: price,
         },
-      ],
+        quantity: 1,
+      }],
       mode: 'payment',
-      success_url: `${process.env.REACT_APP_URL}/pago-exitoso`,
-      cancel_url: `${process.env.REACT_APP_URL}/pago-cancelado`,
+      success_url: 'https://gramakids.netlify.app/pago-exitoso',
+      cancel_url: 'https://gramakids.netlify.app/pago-cancelado',
     });
-
-    console.log("Sesión de Stripe creada con éxito.");
+    
+    console.log("Sesion creada:", session.id);
+    
     return {
       statusCode: 200,
       body: JSON.stringify({ id: session.id, url: session.url }),
     };
   } catch (error) {
-    console.error("Error DENTRO del handler al crear la sesión de Stripe:", error);
+    console.error("Error al crear sesion:", error);
     return {
       statusCode: 500,
-      body: JSON.stringify({ error: 'No se pudo crear la sesión de pago.', details: error.message }),
+      body: JSON.stringify({ error: error.message }),
     };
   }
 };
