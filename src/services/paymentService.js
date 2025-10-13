@@ -72,3 +72,30 @@ export const paymentService = {
   createCheckoutSession,
   createMercadoPagoPreference,
 };
+const createLemonSqueezyCheckout = async () => {
+  try {
+    const response = await fetch('/.netlify/functions/create-lemon-squeezy-checkout', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      }
+    });
+
+    if (!response.ok) {
+      throw new Error('Error al crear checkout de Lemon Squeezy');
+    }
+
+    const data = await response.json();
+    window.location.href = data.url;
+    
+    return { success: true };
+  } catch (error) {
+    console.error("Error con Lemon Squeezy:", error);
+    return { success: false, error: error.message };
+  }
+};
+export const paymentService = {
+  createCheckoutSession,
+  createMercadoPagoPreference,
+  createLemonSqueezyCheckout,
+};

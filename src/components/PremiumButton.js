@@ -5,30 +5,33 @@ const PremiumButton = ({ user, onPremiumUpdate }) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
-  const handlePayment = async (method) => {
-    if (!user) {
-      alert('Debes iniciar sesion para acceder a la version premium');
-      return;
+const handlePayment = async (method) => {
+  if (!user) {
+    alert('Debes iniciar sesion para acceder a la version premium');
+    return;
+  }
+
+  setLoading(true);
+  setError('');
+
+  try {
+    let result;
+    if (method === 'stripe') {
+      result = await paymentService.createLemonSqueezyCheckout();
+    } else if (method === 'mercadopago') {
+      result = await paymentService.createMercadoPagoPreference();
     }
 
-    setLoading(true);
-    setError('');
-
-    try {
-      const result = method === 'stripe' 
-        ? await paymentService.createCheckoutSession()
-        : await paymentService.createMercadoPagoPreference();
-
-      if (!result.success) {
-        setError(result.error || 'Error al procesar el pago');
-      }
-    } catch (error) {
-      setError('Error inesperado. Intentalo de nuevo.');
-      console.error('Error en pago:', error);
+    if (!result.success) {
+      setError(result.error || 'Error al procesar el pago');
     }
+  } catch (error) {
+    setError('Error inesperado. Intentalo de nuevo.');
+    console.error('Error en pago:', error);
+  }
 
-    setLoading(false);
-  };
+  setLoading(false);
+};
 
   return (
     <div style={{ textAlign: 'center', margin: '20px 0' }}>
