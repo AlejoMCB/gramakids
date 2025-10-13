@@ -5,33 +5,33 @@ const PremiumButton = ({ user, onPremiumUpdate }) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
-const handlePayment = async (method) => {
-  if (!user) {
-    alert('Debes iniciar sesion para acceder a la version premium');
-    return;
-  }
-
-  setLoading(true);
-  setError('');
-
-  try {
-    let result;
-    if (method === 'lemonsqueezy') {
-      result = await paymentService.createLemonSqueezyCheckout();
-    } else if (method === 'mercadopago') {
-      result = await paymentService.createMercadoPagoPreference();
+  const handlePayment = async (method) => {
+    if (!user) {
+      alert('Debes iniciar sesion para acceder a la version premium');
+      return;
     }
 
-    if (!result.success) {
-      setError(result.error || 'Error al procesar el pago');
-    }
-  } catch (error) {
-    setError('Error inesperado. Intentalo de nuevo.');
-    console.error('Error en pago:', error);
-  }
+    setLoading(true);
+    setError('');
 
-  setLoading(false);
-};
+    try {
+      let result;
+      if (method === 'lemonsqueezy') {
+        result = await paymentService.createLemonSqueezyCheckout();
+      } else if (method === 'mercadopago') {
+        result = await paymentService.createMercadoPagoPreference();
+      }
+
+      if (!result.success) {
+        setError(result.error || 'Error al procesar el pago');
+      }
+    } catch (error) {
+      setError('Error inesperado. Intentalo de nuevo.');
+      console.error('Error en pago:', error);
+    }
+
+    setLoading(false);
+  };
 
   return (
     <div style={{ textAlign: 'center', margin: '20px 0' }}>
@@ -62,27 +62,6 @@ const handlePayment = async (method) => {
         </div>
       )}
 
-{/* BOTÓN DE LEMON SQUEEZY (Tarjetas internacionales) */}
-<button
-  onClick={() => handlePayment('lemonsqueezy')}
-  disabled={loading}
-  style={{
-    fontSize: '1.2em',
-    padding: '15px 30px',
-    marginBottom: '10px',
-    width: '100%',
-    maxWidth: '300px',
-    background: '#FFC233',
-    color: '#000',
-    border: 'none',
-    borderRadius: '8px',
-    cursor: loading ? 'not-allowed' : 'pointer',
-    fontWeight: 'bold'
-  }}
->
-  {loading ? '⏳ Procesando...' : '🍋 Pagar con Tarjeta (Internacional)'}
-</button>
-
       {/* BOTÓN DE MERCADOPAGO */}
       <button
         onClick={() => handlePayment('mercadopago')}
@@ -107,6 +86,10 @@ const handlePayment = async (method) => {
         <p>🔒 Pago 100% seguro</p>
         <p>⚡ Activacion inmediata</p>
         <p>📱 Funciona en todos tus dispositivos</p>
+      </div>
+
+      <div style={{ fontSize: '0.8em', color: '#999', marginTop: '15px', fontStyle: 'italic' }}>
+        * Próximamente: Pagos con tarjeta internacional
       </div>
     </div>
   );
