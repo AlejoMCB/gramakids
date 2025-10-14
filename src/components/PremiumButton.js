@@ -62,7 +62,28 @@ const PremiumButton = ({ user, onPremiumUpdate }) => {
         </div>
       )}
 
-      {/* BOTÓN DE MERCADOPAGO */}
+      {/* BOTÓN DE LEMON SQUEEZY - Tarjetas internacionales */}
+      <button
+        onClick={() => handlePayment('lemonsqueezy')}
+        disabled={loading}
+        style={{
+          fontSize: '1.2em',
+          padding: '15px 30px',
+          marginBottom: '10px',
+          width: '100%',
+          maxWidth: '300px',
+          background: '#FFC233',
+          color: '#000',
+          border: 'none',
+          borderRadius: '8px',
+          cursor: loading ? 'not-allowed' : 'pointer',
+          fontWeight: 'bold'
+        }}
+      >
+        {loading ? '⏳ Procesando...' : '🍋 Pagar con Tarjeta Internacional'}
+      </button>
+
+      {/* BOTÓN DE MERCADOPAGO - Argentina */}
       <button
         onClick={() => handlePayment('mercadopago')}
         disabled={loading}
@@ -85,11 +106,7 @@ const PremiumButton = ({ user, onPremiumUpdate }) => {
       <div style={{ fontSize: '0.9em', color: '#666', marginTop: '10px' }}>
         <p>🔒 Pago 100% seguro</p>
         <p>⚡ Activacion inmediata</p>
-        <p>📱 Funciona en todos tus dispositivos</p>
-      </div>
-
-      <div style={{ fontSize: '0.8em', color: '#999', marginTop: '15px', fontStyle: 'italic' }}>
-        * Próximamente: Pagos con tarjeta internacional
+        <p>💳 Aceptamos tarjetas de todo el mundo</p>
       </div>
     </div>
   );
