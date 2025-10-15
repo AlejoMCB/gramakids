@@ -2,9 +2,8 @@ const crypto = require('crypto');
 const fetch = require('node-fetch');
 
 exports.handler = async (event) => {
-  console.log('=== WEBHOOK LEMON SQUEEZY ===');
+  console.log('=== WEBHOOK MERCADOPAGO ===');
   
-  // Verificar método
   if (event.httpMethod !== 'POST') {
     return {
       statusCode: 405,
@@ -12,48 +11,28 @@ exports.handler = async (event) => {
     };
   }
 
-  const signature = event.headers['x-signature'];
-  const secret = process.env.LEMON_SQUEEZY_WEBHOOK_SECRET;
-
-  if (!secret) {
-    console.error('LEMON_SQUEEZY_WEBHOOK_SECRET no configurado');
-    return {
-      statusCode: 500,
-      body: JSON.stringify({ error: 'Webhook secret not configured' })
-    };
-  }
-
-  // Verificar firma
-  const hmac = crypto.createHmac('sha256', secret);
-  hmac.update(event.body);
-  const digest = hmac.digest('hex');
-
-  if (digest !== signature) {
-    console.error('Firma inválida');
-    return {
-      statusCode: 401,
-      body: JSON.stringify({ error: 'Invalid signature' })
-    };
-  }
-
   try {
-    const data = JSON.parse(event.body);
-    const eventName = data.meta.event_name;
-    
-    console.log('Evento:', eventName);
+    const body = JSON.parse(event.body);
+    console.log('Notificación de MercadoPago:', body.type);
 
-    // Procesar pago exitoso
-    if (eventName === 'order_created') {
-      const userEmail = data.data.attributes.user_email;
-      console.log('✅ Pago exitoso para:', userEmail);
+    // MercadoPago envía el tipo de notificación
+    if (body.type === 'payment') {
+      const paymentId = body.data.id;
+      console.log('Payment ID:', paymentId);
 
-      // Activar premium en Firebase
-      const activated = await activatePremiumByEmail(userEmail);
+      // Obtener detalles del pago
+      const paymentDetails = await getPaymentDetails(paymentId);
       
-      if (activated) {
-        console.log('🎉 Usuario activado como premium en Firebase');
-      } else {
-        console.error('❌ No se pudo activar premium');
+      if (paymentDetails && paymentDetails.status === 'approved') {
+        const userEmail = paymentDetails.payer.email;
+        console.log('✅ Pago aprobado para:', userEmail);
+
+        // Activar premium en Firebase
+        const activated = await activatePremiumByEmail(userEmail);
+        
+        if (activated) {
+          console.log('🎉 Usuario activado como premium en Firebase');
+        }
       }
     }
 
@@ -71,6 +50,34 @@ exports.handler = async (event) => {
   }
 };
 
+// Obtener detalles del pago desde MercadoPago
+async function getPaymentDetails(paymentId) {
+  const ACCESS_TOKEN = process.env.MERCADOPAGO_ACCESS_TOKEN;
+  
+  if (!ACCESS_TOKEN) {
+    console.error('MERCADOPAGO_ACCESS_TOKEN no configurado');
+    return null;
+  }
+
+  try {
+    const response = await fetch(`https://api.mercadopago.com/v1/payments/${paymentId}`, {
+      headers: {
+        'Authorization': `Bearer ${ACCESS_TOKEN}`
+      }
+    });
+
+    if (response.ok) {
+      return await response.json();
+    } else {
+      console.error('Error obteniendo detalles del pago');
+      return null;
+    }
+  } catch (error) {
+    console.error('Error en getPaymentDetails:', error);
+    return null;
+  }
+}
+
 // Función para activar premium en Firebase por email
 async function activatePremiumByEmail(email) {
   const FIREBASE_API_KEY = process.env.VITE_FIREBASE_API_KEY;
@@ -82,7 +89,7 @@ async function activatePremiumByEmail(email) {
   }
 
   try {
-    // Buscar usuario por email en Firestore
+    // Buscar usuario por email
     const queryUrl = `https://firestore.googleapis.com/v1/projects/${FIREBASE_PROJECT_ID}/databases/(default)/documents:runQuery`;
     
     const queryResponse = await fetch(queryUrl, {
@@ -134,7 +141,7 @@ async function activatePremiumByEmail(email) {
       console.log('Usuario actualizado a premium:', email);
       return true;
     } else {
-      console.error('Error actualizando usuario:', await updateResponse.text());
+      console.error('Error actualizando usuario');
       return false;
     }
 
