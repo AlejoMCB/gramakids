@@ -16,7 +16,7 @@ exports.handler = async (event) => {
         title: name,
         unit_price: price / 100, // MP usa decimales (9.99 no 999)
         quantity: 1,
-        currency_id: 'USD'
+        currency_id: 'ARS' // ✅ CORREGIDO: Ahora usa pesos argentinos
       }],
       back_urls: {
         success: 'https://gramakids.netlify.app/pago-exitoso',
